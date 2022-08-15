@@ -5,6 +5,12 @@ import random
 import time
 import socket
 
+# this script first sends "Hello" to the arduino
+# it then listens for a UDP stream containing 3 16bit values
+# first value is x with range (0-4095), then y (0-4095), then leftClicked (0 or 1)
+# the mouse is then controlled based on the x and y values
+
+
 # TODO
 # need auto calibration
 # absolute or relative modes
@@ -12,15 +18,19 @@ import socket
 # initial handshake
 # data protocol
 
+
+# the IP of the arduino
 remoteIP = "10.0.0.26"
-remotePort = 4210
+# the port to use
+port = 4210
+# the resolution of your monitor (for scaling so it can work on any screen size)
+screenSize = 3440,1440
+
 
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-udp.bind(("", 4210))
+udp.bind(("", port))
 
 packetSize = 16
-
-screenSize = 3440,1440
 
 # Any duration less than this is rounded to 0.0 to instantly move the mouse.
 pg.MINIMUM_DURATION = 0  # Default: 0.1
@@ -68,10 +78,11 @@ def plotSin():
         pg.moveTo(x,y)
 
 
-udp.sendto("Hello".encode(), (remoteIP, remotePort))
+udp.sendto("Hello".encode(), (remoteIP, port))
 
 vals = [None] * 3
 leftClicked = False
+
 
 try:
     while True:
