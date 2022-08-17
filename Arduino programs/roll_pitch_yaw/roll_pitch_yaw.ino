@@ -13,6 +13,9 @@
 #include <Arduino_LSM6DS3.h>
 //#include <Wire.h>
 
+// Filter library from: https://github.com/MartinBloedorn/libFilter
+#include <filters.h>
+
 float accelX,            accelY,             accelZ,            // units m/s/s i.e. accelZ if often 9.8 (gravity)
       gyroX,             gyroY,              gyroZ,             // units dps (degrees per second)
       gyroDriftX,        gyroDriftY,         gyroDriftZ,        // units dps
@@ -23,6 +26,17 @@ float accelX,            accelY,             accelZ,            // units m/s/s i
 
 long lastTime;
 long lastInterval;
+
+// Filter values
+float filterRoll, filterPitch, filterYaw;
+
+// Define filter specifications
+const float cutoff_freq   = 5.0;  //Cutoff frequency in Hz
+const float sampling_time = 0.005; //Sampling time in seconds.
+IIR::ORDER  order  = IIR::ORDER::OD3; // Order (OD1 to OD4)
+
+Filter lowpass_filter(cutoff_freq, sampling_time, order);
+
 
 void setup() {
 
@@ -97,7 +111,9 @@ void loop() {
     lastTime = currentTime;
 
     doCalculations();
+    filterCalculations();
     printCalculations();
+    delay(5); // Loop time to match apprx with sampling time??
 
   }
 
@@ -128,6 +144,13 @@ void doCalculations() {
   complementaryPitch = 0.98 * complementaryPitch + 0.02 * accPitch;
 }
 
+
+// CHANGE*
+void filterCalculations() {
+  filterPitch = lowpass_filter.filterIn(complementaryPitch);
+  
+}
+
 /**
    This comma separated format is best 'viewed' using 'serial plotter' or processing.org client (see ./processing/RollPitchYaw3d.pde example)
 */
@@ -150,10 +173,12 @@ void printCalculations() {
 //  Serial.print(',');
 //  Serial.print(accYaw);
 //  Serial.print(',');
-  Serial.print(complementaryRoll);
-  Serial.print(',');
+//  Serial.print(complementaryRoll);
+//  Serial.print(',');
   Serial.print(complementaryPitch);
   Serial.print(',');
-  Serial.print(complementaryYaw);
+  // Change*
+  Serial.print(filterPitch);
+//  Serial.print(complementaryYaw);
   Serial.println("");
 }
