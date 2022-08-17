@@ -26,13 +26,9 @@ long lastInterval;
 
 void setup() {
 
-  // CHANGE*
-//  Serial.begin(1000000);
-  Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
 
-  // this sketch will wait until something connects to serial!
-  // this could be 'serial monitor', 'serial plotter' or 'processing.org P3D client' (see ./processing/RollPitchYaw3d.pde file)
+  Serial.begin(115200);
   while (!Serial);
 
   if (!IMU.begin()) {
