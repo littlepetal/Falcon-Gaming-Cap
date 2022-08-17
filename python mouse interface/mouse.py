@@ -4,6 +4,7 @@ import numpy as np
 import random
 import time
 import socket
+import struct
 
 # this script first sends "Hello" to the arduino
 # it then listens for a UDP stream containing 3 16bit values
@@ -30,13 +31,13 @@ screenSize = 3440,1440
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 udp.bind(("", port))
 
-packetSize = 16
+#packetSize = 16
+packetSize = 4;
+udpPacketBitField = [14,14,1,1,1,1];
 
-# Any duration less than this is rounded to 0.0 to instantly move the mouse.
+
 pg.MINIMUM_DURATION = 0  # Default: 0.1
-# Minimal number of seconds to sleep between mouse moves.
 pg.MINIMUM_SLEEP = 0  # Default: 0.05
-# The number of seconds to pause after EVERY public function call.
 pg.PAUSE = 0  # Default: 0.1
 
 
@@ -54,28 +55,26 @@ def centreMouse():
     pg.moveTo(screenSize[0]/2, screenSize[1]/2)
 
 
-def moveRand(dist):
-    pg.moveRel(random.randint(-1*dist,dist),random.randint(-1*dist,dist))
+def decodeBits(bits):
+    var = struct.unpack("<BBBB", bits)
 
+    aux2 = ( var[3] >> 7 ) & 0b01
+    aux1 = ( var[3] >> 6 ) & 0b01
+    r = ( var[3] >> 5 ) & 0b01
+    l = ( var[3] >> 4 ) & 0b01
 
-def moveInCircle(radius):
-    pg.moveRel(0,-radius)
-    for i in range(100*360):
-        pg.moveRel(5*math.cos(np.deg2rad(i)),5*math.sin(np.deg2rad(i)))
+    y1 = var[3] & 0b1111
+    y2 = var[2]
+    y3 = ( var[1] >> 6 ) & 0b1111
+    y = ( y1 << 10 ) | ( y2 << 2 ) | ( y3 )
 
+    x1 = var[1] & 0b00111111
+    x2 = var[0]
+    x = ( x1 << 8 ) | ( x2 )
 
-def jitter():
-    for i in range(100000):
-        print(i)
-        moveRand(1)
+    decoded = (x,y,l,r,aux1,aux2)
 
-
-def plotSin():
-    pg.moveTo(0,screenSize[1]/2)
-    for x in range(screenSize[0]):
-        time.sleep(0.001)
-        y = screenSize[1]/2 + math.sin(x/500)*(screenSize[1]/2)
-        pg.moveTo(x,y)
+    return decoded
 
 
 udp.sendto("Hello".encode(), (remoteIP, port))
@@ -83,23 +82,27 @@ udp.sendto("Hello".encode(), (remoteIP, port))
 vals = [None] * 3
 leftClicked = False
 
-
 try:
     while True:
         data, addr = udp.recvfrom(packetSize)
-        data = data.decode()
-        data = data.split("\r\n")[0]
-        y,x,lc = data.split(",")
+        #data = data.decode()
+        #data = data.split("\r\n")[0]
+        #y,x,lc = data.split(",")
+        x,y,lc,rc,aux1,aux2 = decodeBits(data)
         x = int(x)
-        y = 4096-int(y)
+        y = int(y)
         lc = int(lc)
+
+        xCal = x - 1826 #subtract the bias
+        yCal = y - 1834
+
+        print(xCal,yCal,lc,rc,aux1,aux2)
 
         #xPos = translate(x,0,4095,0,screenSize[0])
         #yPos = translate(y,0,4095,0,screenSize[1])
         #pg.moveTo(xPos,yPos)
 
-        print((x-1827),(y-2275))
-        pg.moveRel((x-1827)/100,(y-2275)/100)
+        pg.moveRel((xCal)/100,(yCal)/100)
 
         if(lc and not leftClicked):
             pg.mouseDown(button='left')
@@ -113,5 +116,6 @@ try:
 
 except KeyboardInterrupt:
     pass
+
 
 udp.close()
