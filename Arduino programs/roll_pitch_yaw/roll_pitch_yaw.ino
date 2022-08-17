@@ -16,6 +16,7 @@
 // Filter library from: https://github.com/MartinBloedorn/libFilter
 #include <filters.h>
 
+
 float accelX,            accelY,             accelZ,            // units m/s/s i.e. accelZ if often 9.8 (gravity)
       gyroX,             gyroY,              gyroZ,             // units dps (degrees per second)
       gyroDriftX,        gyroDriftY,         gyroDriftZ,        // units dps
@@ -31,9 +32,9 @@ long lastInterval;
 float filterRoll, filterPitch, filterYaw;
 
 // Define filter specifications
-const float cutoff_freq   = 5.0;  //Cutoff frequency in Hz
-const float sampling_time = 0.005; //Sampling time in seconds.
-IIR::ORDER  order  = IIR::ORDER::OD3; // Order (OD1 to OD4)
+const float cutoff_freq   = 5.0;  //Cutoff frequency in Hz          maybe set this higher because the data isn't very noisy, might decrese the phase lag
+const float sampling_time = 0.005; //Sampling time in seconds.      not sure how this works but wouldn't it make sense to use 10ms?   from the update 100Hz rate
+IIR::ORDER  order  = IIR::ORDER::OD3; // Order (OD1 to OD4)         
 
 Filter lowpass_filter(cutoff_freq, sampling_time, order);
 
