@@ -79,16 +79,16 @@ def decodeBits(bits):
 
 udp.sendto("Hello".encode(), (remoteIP, port))
 
+
 vals = [None] * 3
 leftClicked = False
 
 try:
     while True:
+
         data, addr = udp.recvfrom(packetSize)
-        #data = data.decode()
-        #data = data.split("\r\n")[0]
-        #y,x,lc = data.split(",")
         x,y,lc,rc,aux1,aux2 = decodeBits(data)
+
         x = int(x)
         y = int(y)
         lc = int(lc)

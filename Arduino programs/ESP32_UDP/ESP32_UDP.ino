@@ -87,7 +87,7 @@ int waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort)
 void sendACK(WiFiUDP* Udp, unsigned int localUdpPort){
 
   memset(outBuffer, 0x00, sizeof(outBuffer));
-  sprintf(outBuffer, "ACK\r\n");
+  sprintf(outBuffer, "ACK");
 
   Udp->beginPacket(Udp->remoteIP(), Udp->remotePort());
   Udp->write((const uint8_t*)outBuffer, 16);
