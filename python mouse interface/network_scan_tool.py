@@ -1,6 +1,11 @@
 import time
 import socket
 
+# network scanning tool created by Darragh McMullen
+# searches your network for devices listening on the given port
+# returns the local IPv4 address and port of the device
+
+port = 4210; #default port
 rxPacketSize = 255;
 socketTimeout = 0.01;
 
@@ -21,7 +26,7 @@ def find_device_ip(udp, LanIPformat, port):
 
         except socket.timeout:
             pass
-            
+
     return None
 
 
@@ -48,3 +53,7 @@ def find_device(port):
     udp.close()
 
     return remoteIP
+
+
+if __name__ == '__main__':
+    find_device(port)
