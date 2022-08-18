@@ -138,6 +138,9 @@ void loop() {
   analogAverage(&data[0], xPin, 100);
   analogAverage(&data[1], yPin, 100);
   data[2] = !(digitalRead(swPin));
+
+  data[0] -= 1821;  // subtract the bias
+  data[1] -= 1825;  // subtract the bias
   
   //memset(outBuffer, 0x00, sizeof(outBuffer));
   //sprintf(outBuffer, "%d,%d,%d\r\n", data[0],data[1],data[2]);
