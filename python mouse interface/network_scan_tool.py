@@ -1,13 +1,10 @@
-import numpy as np
 import time
 import socket
 
 
-
-
 port = 4210
-
 rxPacketSize = 255;
+socketTimeout = 0.01;
 
 
 def get_local_ip():
@@ -22,7 +19,6 @@ def find_device_ip(udp, LanIPformat):
             print(f'Scanning IP: {remoteIP}')
             udp.sendto("HS".encode(), (remoteIP, port))
             data, addr = udp.recvfrom(rxPacketSize)
-            print(data)
             if(bytes("ACK",'utf-8') in data):
                 return addr
 
@@ -39,13 +35,19 @@ def main():
     LanIPformat = f'{LanIPformat[0]}.{LanIPformat[1]}.{LanIPformat[2]}.'
 
     udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp.settimeout(0.25)
+    udp.settimeout(socketTimeout)
     udp.bind(("", port))
 
+    startTime = time.time()
     remoteIP = find_device_ip(udp, LanIPformat)
     if remoteIP != None:
-        print(f'Found device at: {remoteIP}')
-
+        endTime = time.time()
+        totalTime = round(endTime-startTime,2)
+        print(f'Found device at: {remoteIP}, took {totalTime}s')
+    else:
+        endTime = time.time()
+        totalTime = round(endTime-startTime,2)
+        print(f'Unable to locate device on the network. Took {totalTime}s')
 
 
 main()
