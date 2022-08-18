@@ -141,6 +141,7 @@ void doCalculations() {
   complementaryPitch = complementaryPitch + ((gyroY - gyroDriftY) / lastFrequency);
   complementaryYaw = complementaryYaw + ((gyroZ - gyroDriftZ) / lastFrequency);
 
+  // complementary confidence gains
   complementaryRoll = 0.98 * complementaryRoll + 0.02 * accRoll;
   complementaryPitch = 0.98 * complementaryPitch + 0.02 * accPitch;
 }
