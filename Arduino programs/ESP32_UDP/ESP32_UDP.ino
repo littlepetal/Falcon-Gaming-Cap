@@ -1,4 +1,3 @@
-#include <WebServer.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
@@ -29,6 +28,7 @@ const int xPin = 36;
 const int yPin = 39;
 const int swPin = 34;
 
+
 void initWiFi() {
   
   WiFi.mode(WIFI_STA);
@@ -44,15 +44,11 @@ void initWiFi() {
   Serial.println("\n" + WiFi.localIP());
 }
 
-void initUdp(WiFiUDP* Udp, unsigned int localUdpPort){
-  Udp->begin(localUdpPort);
-}
 
 
 int waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort){
   
   bool readPacket = false;
-  
   while(!readPacket){
     
     Udp->begin(localUdpPort);
@@ -60,9 +56,7 @@ int waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort)
 
     // we recv one packet from the remote so we can know its IP and port
     while (!readPacket) {
-      
       int packetSize = Udp->parsePacket();
-      
       if (packetSize)
        {
         
@@ -84,6 +78,7 @@ int waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort)
 }
 
 
+
 void sendACK(WiFiUDP* Udp, unsigned int localUdpPort){
 
   memset(outBuffer, 0x00, sizeof(outBuffer));
@@ -92,6 +87,15 @@ void sendACK(WiFiUDP* Udp, unsigned int localUdpPort){
   Udp->beginPacket(Udp->remoteIP(), Udp->remotePort());
   Udp->write((const uint8_t*)outBuffer, 16);
   Udp->endPacket();
+  
+}
+
+
+
+bool waitForHandshake(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort){
+
+  waitForPacket(Udp, incomingPacket, localUdpPort);
+  sendACK(Udp, localUdpPort);
   
 }
 
@@ -110,19 +114,23 @@ void analogAverage(int* data, int pin, int nSamples){
   
 }
 
+
 void setup() {
   pinMode(swPin, INPUT);
   Serial.begin(115200);
   Serial.println("Serial connected");
   initWiFi();
-  //initUdp(&Udp, localUdpPort);
-  waitForPacket(&Udp, &incomingPacket[0], localUdpPort);
-  sendACK(&Udp, localUdpPort);
+  waitForHandshake(&Udp, &incomingPacket[0], localUdpPort);
+  //waitForPacket(&Udp, &incomingPacket[0], localUdpPort);
+  //sendACK(&Udp, localUdpPort);
+  Serial.println("Starting UDP stream to " + Udp.remoteIP().toString() + ":" + Udp.remotePort());
 }
+
 
 
 int data[] = {0};
 struct UDP_data_packet packet = {0,0,0,0,0,0};
+
 
 
 void loop() {
