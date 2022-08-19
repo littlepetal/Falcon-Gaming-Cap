@@ -1,12 +1,9 @@
 import pyautogui as pg
-import math
-import numpy as np
-import random
-import time
-import socket
-import struct
 import network_scan_tool
 import UDPstream
+
+#import math
+#import time
 
 
 # TODO
@@ -19,12 +16,12 @@ import UDPstream
 port = 4210
 # the resolution of your monitor(s) (if using multiple, simply add the x resolution together)
 screenSize = 3440,1440
-# relative or absolute mouse control modes
+# relative or absolute mouse control modes ('abs'/'rel')
 mode = 'rel'
 
 # range of data from ardiuno
-xRange = -8192,8192
-yRange = -8192,8192
+xRange = -1820,1820
+yRange = -1820,1820
 
 # size of the compressed packets in bytes
 packetSize = 4;

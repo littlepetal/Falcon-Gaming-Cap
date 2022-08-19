@@ -1,5 +1,6 @@
-import time
 import socket
+import time
+
 
 # network scanning tool created by Darragh McMullen
 # searches your network for devices listening on the given port
