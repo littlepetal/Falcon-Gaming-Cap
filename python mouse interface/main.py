@@ -6,32 +6,40 @@ import time
 import socket
 import struct
 import network_scan_tool
+import UDPstream
 
 
 # TODO
-# need auto calibration
-# absolute or relative modes
-# left and right click
-# initial handshake
+# need auto calibration <- should be easy
+# initial handshake <- needs to be more robust
+# stream start/stop <- need to add udp rx and command parser on arduino side
 
 
 # the port to use
 port = 4210
-# the resolution of your monitor
+# the resolution of your monitor(s) (if using multiple, simply add the x resolution together)
 screenSize = 3440,1440
+# relative or absolute mouse control modes
+mode = 'rel'
 
+# range of data from ardiuno
+xRange = -8192,8192
+yRange = -8192,8192
 
+# size of the compressed packets in bytes
 packetSize = 4;
 
+# need these to reduce mouse movement delay
 pg.MINIMUM_DURATION = 0
 pg.MINIMUM_SLEEP = 0
 pg.PAUSE = 0
 
-
+# safely kills the UDP stream and closes the program
 def softQuit():
     # send end transmission flag "END"
     try:
         udp.close()
+        #UDPstream.killStream(udp)
         print("Safely ended stream and closed port")
     except:
         pass
@@ -39,7 +47,7 @@ def softQuit():
     quit()
 
 
-# find the ip of the arduino
+# find the ip of the arduino using network scan tool
 def findArduino(port):
     remoteLocation = network_scan_tool.find_device(port)
 
@@ -48,90 +56,64 @@ def findArduino(port):
 
     return remoteLocation
 
-
-def initUDP():
-    # create udp socket and bind port
-    udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp.bind(("", port))
-    return udp
-
-
+# maps value from one range to another
 def map(value, leftMin, leftMax, rightMin, rightMax):
     leftSpan = leftMax - leftMin
     rightSpan = rightMax - rightMin
     valueScaled = float(value - leftMin) / float(leftSpan)
     return int(rightMin + (valueScaled * rightSpan))
 
-
-def twosComp(data):
-    numBits = 14
-    if (data & (1 << (numBits - 1))) != 0:
-        data = data - (1 << numBits)
-    return data
-
-
+# centres the mouse on your screen(s)
 def centreMouse():
     pg.moveTo(screenSize[0]/2, screenSize[1]/2)
 
-
+# moves the mouse (absolute coords)
 def moveMouse(x,y):
     pg.moveTo(x,y)
 
 
-def decodeBits(bits):
-    var = struct.unpack("<BBBB", bits)
-
-    aux2 = int( ( var[3] >> 7 ) & 0b01 )
-    aux1 = int( ( var[3] >> 6 ) & 0b01 )
-    r = int( ( var[3] >> 5 ) & 0b01 )
-    l = int( ( var[3] >> 4 ) & 0b01 )
-
-    y1 = var[3] & 0b1111
-    y2 = var[2]
-    y3 = ( var[1] >> 6 ) & 0b1111
-    y = ( ( y1 << 10 ) | ( y2 << 2 ) | ( y3 ) ) #| 0b0000000000000000
-    y = twosComp(y)
-
-    x1 = var[1] & 0b00111111
-    x2 = var[0]
-    x = ( ( x1 << 8 ) | ( x2 ) ) #| 0b0000000000000000
-    x = twosComp(x)
-
-    # if using arduino IMU data /90
-    # y /= 90
-    # x /= 90
-
-    decoded = (x,y,l,r,aux1,aux2)
-    return decoded
-
-
 def main():
 
-    vals = [None] * 3
+    # mouse button pressed flags (allows for click and drag)
     leftClicked = False
     rightClicked = False
 
+    # use the network scan tool to find the arduino's IP address
     remoteIP,remotePort = findArduino(port)
 
     # create UDP socket
-    udp = initUDP()
+    udp = UDPstream.initUDP(port)
 
     # send begin transmission flag "BGN"
-    udp.sendto("BGN".encode(), (remoteIP, port))
+    UDPstream.txString("BGN", udp, remoteIP, port)
     print("Starting UDP stream")
 
+    # infinite loop, ctrl+c to quit
     try:
         while True:
-            data, addr = udp.recvfrom(packetSize)
-            x,y,lc,rc,aux1,aux2 = decodeBits(data)
+            # wait for data
+            recvData = UDPstream.rxPacket(udp, packetSize, 0.02)
+            # check if recieved and handle timeout error
+            if recvData != None:
+                data,addr = recvData
+            else:
+                pass
+
+            # decode the data packet
+            x,y,lc,rc,aux1,aux2 = UDPstream.decodeBits(data)
             print(x,y,lc,rc,aux1,aux2)
 
-            #xPos = map(x,0,4095,0,screenSize[0])
-            #yPos = map(y,0,4095,0,screenSize[1])
-            #moveMouse(xPos,yPos)
+            # absolute mode
+            if mode == 'abs':
+                xPos = map(x,xRange[0],xRange[1],0,screenSize[0])
+                yPos = map(y,yRange[0],yRange[1],0,screenSize[1])
+                moveMouse(xPos,yPos)
 
-            pg.moveRel((x)/100,(y)/100)
+            # relative mode
+            elif mode == 'rel':
+                pg.moveRel((x)/100,(y)/100)
 
+            # mouse click handlers
             if(lc and not leftClicked):
                 pg.mouseDown(button='left')
                 leftClicked = True
