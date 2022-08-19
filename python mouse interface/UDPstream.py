@@ -4,6 +4,7 @@ import struct
 
 def initUDP(port):
     # create udp socket and bind port
+    global udp
     udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp.bind(("", port))
     return udp
@@ -84,4 +85,6 @@ def startStream(udp):
 
 
 def killStream(udp):
-    pass
+    # send kill stream command
+    # close udp port
+    udp.close()

@@ -10,6 +10,9 @@ import UDPstream
 # need auto calibration <- should be easy
 # initial handshake <- needs to be more robust
 # stream start/stop <- need to add udp rx and command parser on arduino side
+# update rate and packet loss detection (1.5x packet time before declared lost?, implement via timeout?)
+
+# arduino side: LED status indicator
 
 
 # the port to use
@@ -32,14 +35,15 @@ pg.MINIMUM_SLEEP = 0
 pg.PAUSE = 0
 
 # safely kills the UDP stream and closes the program
-def softQuit():
+def softQuit(udp = None):
     # send end transmission flag "END"
-    try:
-        udp.close()
-        #UDPstream.killStream(udp)
-        print("Safely ended stream and closed port")
-    except:
-        pass
+    if udp:
+        try:
+            UDPstream.killStream(udp)
+            print("Safely ended stream and closed port")
+        except:
+            print("Error: unable to kill UDP stream")
+
     print("Closing...")
     quit()
 
@@ -131,11 +135,11 @@ def main():
 
 
     except KeyboardInterrupt:
-        softQuit()
+        softQuit(udp)
 
 
 if __name__ == '__main__':
     main()
 
 
-softQuit()
+softQuit(udp)
