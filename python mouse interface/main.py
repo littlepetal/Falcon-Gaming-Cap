@@ -77,7 +77,6 @@ def centreMouse():
 def moveMouse(x,y):
     pg.moveTo(x,y)
 
-
 def doMouseControl(x,y,lc,rc):
 
     global leftClicked
