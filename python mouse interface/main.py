@@ -34,6 +34,11 @@ pg.MINIMUM_DURATION = 0
 pg.MINIMUM_SLEEP = 0
 pg.PAUSE = 0
 
+# mouse button pressed flags (allows for click and drag)
+leftClicked = False
+rightClicked = False
+
+
 # safely kills the UDP stream and closes the program
 def softQuit(udp = None):
     # send end transmission flag "END"
@@ -73,11 +78,46 @@ def moveMouse(x,y):
     pg.moveTo(x,y)
 
 
+def doMouseControl(x,y,lc,rc):
+
+    global leftClicked
+    global rightClicked
+    global mode
+
+    # absolute mode
+    if mode == 'abs':
+        xPos = map(x,xRange[0],xRange[1],0,screenSize[0])
+        yPos = map(y,yRange[0],yRange[1],0,screenSize[1])
+        moveMouse(xPos,yPos)
+
+    # relative mode
+    elif mode == 'rel':
+        pg.moveRel((x)/100,(y)/100)
+
+    # mouse click handlers
+    if(lc and not leftClicked):
+        pg.mouseDown(button='left')
+        leftClicked = True
+    elif(not lc and leftClicked):
+        pg.mouseUp(button='left')
+        leftClicked = False
+    else:
+        pass
+
+    if(rc and not rightClicked):
+        pg.mouseDown(button='right')
+        rightClicked = True
+    elif(not rc and rightClicked):
+        pg.mouseUp(button='right')
+        rightClicked = False
+    else:
+        pass
+
+
+
 def main():
 
-    # mouse button pressed flags (allows for click and drag)
-    leftClicked = False
-    rightClicked = False
+    droppedPackets = 0
 
     # use the network scan tool to find the arduino's IP address
     remoteIP,remotePort = findArduino(port)
@@ -98,40 +138,14 @@ def main():
             if recvData != None:
                 data,addr = recvData
             else:
-                pass
+                droppedPackets += 1
 
             # decode the data packet
             x,y,lc,rc,aux1,aux2 = UDPstream.decodeBits(data)
             print(x,y,lc,rc,aux1,aux2)
 
-            # absolute mode
-            if mode == 'abs':
-                xPos = map(x,xRange[0],xRange[1],0,screenSize[0])
-                yPos = map(y,yRange[0],yRange[1],0,screenSize[1])
-                moveMouse(xPos,yPos)
-
-            # relative mode
-            elif mode == 'rel':
-                pg.moveRel((x)/100,(y)/100)
-
-            # mouse click handlers
-            if(lc and not leftClicked):
-                pg.mouseDown(button='left')
-                leftClicked = True
-            elif(not lc and leftClicked):
-                pg.mouseUp(button='left')
-                leftClicked = False
-            else:
-                pass
-
-            if(rc and not rightClicked):
-                pg.mouseDown(button='right')
-                rightClicked = True
-            elif(not rc and rightClicked):
-                pg.mouseUp(button='right')
-                rightClicked = False
-            else:
-                pass
+            # send to mouse control function
+            doMouseControl(x,y,lc,rc)
 
 
     except KeyboardInterrupt:
