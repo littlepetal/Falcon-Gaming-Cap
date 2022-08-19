@@ -1,11 +1,9 @@
 #include "ArdUDP.h"
 
 void ArdPyUDP::init() {
-  
   keyIndex = 0;             // your network key index number (needed only for WEP)
   status = WL_IDLE_STATUS;
   localPort = 4210;      // local port to listen on
-//  ReplyBuffer[] = "acknowledged";       // a string to send back
 }
 
 
@@ -42,8 +40,11 @@ void ArdPyUDP::UDPSetup() {
   // if you get a connection, report back via serial:
   Udp.begin(localPort);
 
-  waitForPacket(&Udp, &packetBuffer[0], localPort);
-  sendACK(&Udp, localPort);  
+  // Do we need this?
+//  waitForPacket(&Udp, &packetBuffer[0], localPort);
+//  sendACK(&Udp, localPort); 
+
+  remoteIp = Udp.remoteIP();
 }
 
 void ArdPyUDP::sendACK(WiFiUDP* Udp, unsigned int localUdpPort){
@@ -82,7 +83,7 @@ int ArdPyUDP::waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int loc
 
 
 
-void ArdPyUDP::sendReceieveloop() {
+void ArdPyUDP::receieveUDP() {
 
  // if there's data available, read a packet
  int packetSize = Udp.parsePacket();
@@ -90,7 +91,7 @@ void ArdPyUDP::sendReceieveloop() {
    Serial.print("Received packet of size ");
    Serial.println(packetSize);
    Serial.print("From ");
-   IPAddress remoteIp = Udp.remoteIP();
+   remoteIp = Udp.remoteIP();
    Serial.print(remoteIp);
    Serial.print(", port ");
    Serial.println(Udp.remotePort());
@@ -102,16 +103,11 @@ void ArdPyUDP::sendReceieveloop() {
    }
    Serial.println("Contents:");
    Serial.println(packetBuffer);
-
-   // send a reply, to the IP address and port that sent us the packet we received
-  //  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  //  Udp.write(ReplyBuffer);
-  //  Udp.endPacket();
  }
 }
 
 void ArdPyUDP::writeUDP(UDPDataPacket packet) {
-  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+  Udp.beginPacket(remoteIp, Udp.remotePort());
   Udp.write(packet.data, sizeof(packet.data));
   Udp.endPacket();
 }

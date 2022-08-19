@@ -18,7 +18,7 @@ class ArdPyUDP {
   public:
     void init();
     void UDPSetup();
-    void sendReceieveloop();
+    void receieveUDP();
     void writeUDP(UDPDataPacket data);
   private:
     int keyIndex;             // your network key index number (needed only for WEP)
@@ -32,5 +32,6 @@ class ArdPyUDP {
     void printWifiStatus();
     void sendACK(WiFiUDP* Udp, unsigned int localUdpPort);
     int waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort);
+    IPAddress remoteIp;
     
 };

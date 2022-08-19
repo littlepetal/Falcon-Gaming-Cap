@@ -15,11 +15,6 @@ void RPY::init() {
 
 void RPY::IMUsetup() {
 
- pinMode(LED_BUILTIN, OUTPUT);
-
- Serial.begin(115200);
- while (!Serial);
-
  if (!IMU.begin()) {
    Serial.println("Failed to initialize IMU!");
    while (1);
