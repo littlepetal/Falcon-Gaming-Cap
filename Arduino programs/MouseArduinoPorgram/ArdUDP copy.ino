@@ -1,8 +1,6 @@
 // //
 
-// #include <SPI.h>
-// #include <WiFiNINA.h>
-// #include <WiFiUdp.h>
+// #include "ArdUDP.h"
 
 // // Router information
 // #define SECRET_SSID "DevanSpot"
@@ -39,8 +37,6 @@
 //  while(!readPacket){
    
 //    Udp->begin(localUdpPort);
-// //    Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
-
 //    // we recv one packet from the remote so we can know its IP and port
 //    while (!readPacket) {
      
@@ -49,8 +45,7 @@
 //      if (packetSize)
 //       {
        
-//        // receive incoming UDP packets
-// //        Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp->remoteIP().toString().c_str(), Udp->remotePort());
+
        
 //        int len = Udp->read(incomingPacket, 255);
 //        if (len > 0)
@@ -58,7 +53,7 @@
 //          incomingPacket[len] = 0;
 //        }
        
-// //        Serial.printf("UDP packet contents: %s\n", incomingPacket);
+
 //        readPacket = true;
        
 //      }  
@@ -66,47 +61,81 @@
 //  }
 // }
 
-// void setup() {
-//  //Initialize serial and wait for port to open:
-//  Serial.begin(9600);
+// void UDPSetup() {
+//   // Connect arduino to WPA/WPA2 network
+//   if (WiFi.status() == WL_NO_MODULE) {
+//     Serial.println("Communication with WiFi module failed!");
+//     // don't continue
+//     while (true);
+//   }
 
-// // NOTE*: I don't think we need to wait for serial?
-// //  while (!Serial) {
-// //    ; // wait for serial port to connect. Needed for native USB port only
+//   String fv = WiFi.firmwareVersion();
+//   if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
+//     Serial.println("Please upgrade the firmware");
+//   }
+
+//   // attempt to connect to WiFi network:
+//   while (status != WL_CONNECTED) {
+//     Serial.print("Attempting to connect to SSID: ");
+//     Serial.println(ssid);
+//     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+//     status = WiFi.begin(ssid, pass);
+
+//     // wait 10 seconds for connection:
+//     delay(10000);  
+//   }
+//   Serial.println("Connected to WiFi");
+//   printWifiStatus();
+
+//   Serial.println("\nStarting connection to server...");
+//   // if you get a connection, report back via serial:
+//   Udp.begin(localPort);
+
+//   waitForPacket(&Udp, &packetBuffer[0], localPort);
+//   sendACK(&Udp, localPort);  
+// }
+
+// // void setup() {
+// //  //Initialize serial and wait for port to open:
+// //  Serial.begin(9600);
+
+// // // NOTE*: I don't think we need to wait for serial?
+// // //  while (!Serial) {
+// // //    ; // wait for serial port to connect. Needed for native USB port only
+// // //  }
+
+// //  // check for the WiFi module:
+// //  if (WiFi.status() == WL_NO_MODULE) {
+// //    Serial.println("Communication with WiFi module failed!");
+// //    // don't continue
+// //    while (true);
 // //  }
 
-//  // check for the WiFi module:
-//  if (WiFi.status() == WL_NO_MODULE) {
-//    Serial.println("Communication with WiFi module failed!");
-//    // don't continue
-//    while (true);
-//  }
+// //  String fv = WiFi.firmwareVersion();
+// //  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
+// //    Serial.println("Please upgrade the firmware");
+// //  }
 
-//  String fv = WiFi.firmwareVersion();
-//  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
-//    Serial.println("Please upgrade the firmware");
-//  }
+// //  // attempt to connect to WiFi network:
+// //  while (status != WL_CONNECTED) {
+// //    Serial.print("Attempting to connect to SSID: ");
+// //    Serial.println(ssid);
+// //    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+// //    status = WiFi.begin(ssid, pass);
 
-//  // attempt to connect to WiFi network:
-//  while (status != WL_CONNECTED) {
-//    Serial.print("Attempting to connect to SSID: ");
-//    Serial.println(ssid);
-//    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-//    status = WiFi.begin(ssid, pass);
+// //    // wait 10 seconds for connection:
+// //    delay(10000);
+// //  }
+// //  Serial.println("Connected to WiFi");
+// //  printWifiStatus();
 
-//    // wait 10 seconds for connection:
-//    delay(10000);
-//  }
-//  Serial.println("Connected to WiFi");
-//  printWifiStatus();
+// //  Serial.println("\nStarting connection to server...");
+// //  // if you get a connection, report back via serial:
+// //  Udp.begin(localPort);
 
-//  Serial.println("\nStarting connection to server...");
-//  // if you get a connection, report back via serial:
-//  Udp.begin(localPort);
-
-//  waitForPacket(&Udp, &packetBuffer[0], localPort);
-//  sendACK(&Udp, localPort);
-// }
+// //  waitForPacket(&Udp, &packetBuffer[0], localPort);
+// //  sendACK(&Udp, localPort);
+// // }
 
 // void loop() {
 
