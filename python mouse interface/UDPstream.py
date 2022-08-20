@@ -80,11 +80,12 @@ def rxString(udp, len, timeout = 1):
     return ret
 
 
-def startStream(udp):
-    pass
+def startStream(udp, remoteIP, port):
+    txString("BGN", udp, remoteIP, port)
+    print("Starting UDP stream")
 
 
-def killStream(udp):
-    # send kill stream command
-    # close udp port
+def killStream(udp, remoteIP, port):
+    txString("END", udp, remoteIP, port)
+    print("Killing UDP stream")
     udp.close()

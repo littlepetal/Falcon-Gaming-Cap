@@ -1,9 +1,10 @@
 import pyautogui as pg
 import network_scan_tool
 import UDPstream
-
+import threading
+import time
+#import gui
 #import math
-#import time
 
 
 # TODO
@@ -44,12 +45,15 @@ def softQuit(udp = None):
     # send end transmission flag "END"
     if udp:
         try:
-            UDPstream.killStream(udp)
+            UDPstream.killStream(udp, remoteIP, port)
             print("Safely ended stream and closed port")
         except:
             print("Error: unable to kill UDP stream")
 
     print("Closing...")
+
+    #gui.close_app()
+    #app[0].quit()
     quit()
 
 
@@ -116,7 +120,14 @@ def doMouseControl(x,y,lc,rc):
 
 def main():
 
+    #global app
+    #app = [None]
+    #ui_th = threading.Thread(target=gui.uiThread, args=(app,))
+    #ui_th.start()
+
     droppedPackets = 0
+
+    global remoteIP, remotePort, udp
 
     # use the network scan tool to find the arduino's IP address
     remoteIP,remotePort = findArduino(port)
@@ -124,9 +135,7 @@ def main():
     # create UDP socket
     udp = UDPstream.initUDP(port)
 
-    # send begin transmission flag "BGN"
-    UDPstream.txString("BGN", udp, remoteIP, port)
-    print("Starting UDP stream")
+    UDPstream.startStream(udp, remoteIP, remotePort)
 
     # infinite loop, ctrl+c to quit
     try:
@@ -136,15 +145,16 @@ def main():
             # check if recieved and handle timeout error
             if recvData != None:
                 data,addr = recvData
+
+                # decode the data packet
+                x,y,lc,rc,aux1,aux2 = UDPstream.decodeBits(data)
+                print(x,y,lc,rc,aux1,aux2)
+
+                # send to mouse control function
+                doMouseControl(x,y,lc,rc)
+
             else:
                 droppedPackets += 1
-
-            # decode the data packet
-            x,y,lc,rc,aux1,aux2 = UDPstream.decodeBits(data)
-            print(x,y,lc,rc,aux1,aux2)
-
-            # send to mouse control function
-            doMouseControl(x,y,lc,rc)
 
 
     except KeyboardInterrupt:
