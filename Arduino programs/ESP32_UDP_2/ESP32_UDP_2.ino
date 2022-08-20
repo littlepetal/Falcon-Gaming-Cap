@@ -58,8 +58,8 @@ int readPacket(WiFiUDP* Udp, char* inBuffer, bool printDebug){
     if(len){
       inBuffer[len] = 0;
       if(printDebug){
-        Serial.printf("Received %d bytes from %s:%d\n", packetSize, Udp->remoteIP().toString().c_str(), Udp->remotePort());
-        Serial.printf("UDP packet contents: %s\n", inBuffer);
+        Serial.println("Received " + String(packetSize) + " bytes from " + Udp->remoteIP().toString() + ":" + Udp->remotePort());
+        Serial.println("UDP packet contents: " + String(inBuffer));
       }
     }
   }
@@ -97,7 +97,7 @@ bool waitForHandshake(WiFiUDP* Udp, char* inBuffer, unsigned int localUdpPort){
   }
 
   Serial.println("\nHandshake successful!");
-  Serial.printf("Paired with client at %s:%d\n",Udp->remoteIP().toString().c_str(), Udp->remotePort());
+  Serial.println("Paired with client at " + Udp->remoteIP().toString() + ":" + Udp->remotePort());
 
   sendACK(Udp, localUdpPort);
   
@@ -126,7 +126,7 @@ void setup() {
   initWiFi();
   
   Udp.begin(localUdpPort);
-  Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
+  Serial.println("Now listening at " + WiFi.localIP().toString() + ":" + localUdpPort);
   
   waitForHandshake(&Udp, &inBuffer[0], localUdpPort);
   
