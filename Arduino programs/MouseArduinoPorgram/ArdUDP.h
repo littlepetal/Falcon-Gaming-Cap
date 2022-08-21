@@ -42,7 +42,7 @@ class ArdPyUDP {
     char  ReplyBuffer[256] = "acknowledged";       // a string to send back
     bool connectionMade;
     void printWifiStatus();
-    void sendACK(WiFiUDP* Udp, unsigned int localUdpPort);
+    void sendACK();
     int waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort);
     IPAddress remoteIp;
     

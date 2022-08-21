@@ -3,6 +3,7 @@ import network_scan_tool
 import UDPstream
 import threading
 import time
+import keyboard
 #import gui
 #import math
 
@@ -45,6 +46,9 @@ leftClicked = False
 rightClicked = False
 
 
+xOffset = 0
+yOffset = 0
+
 # safely kills the UDP stream and closes the program
 def softQuit(udp = None):
     # send end transmission flag "END"
@@ -81,6 +85,16 @@ def map(value, leftMin, leftMax, rightMin, rightMax):
 # centres the mouse on your screen(s)
 def centreMouse():
     pg.moveTo(screenSize[0]/2, screenSize[1]/2)
+
+
+def recalibrateMouse(x, y):
+    global xOffset
+    global yOffset
+
+    xOffset = x
+    yOffset = y
+    pg.moveTo(screenSize[0]/2, screenSize[1]/2)
+    
 
 # moves the mouse (absolute coords)
 def moveMouse(x,y):
@@ -138,9 +152,11 @@ def main():
 
     # use the network scan tool to find the arduino's IP address
     # change*
-    # remoteIP,remotePort = findArduino(port)
-    remotePort = 4210
-    remoteIP = input("Enter IP: ")
+    remoteIP,remotePort = findArduino(port)
+    # print(remoteIP)
+    # exit()
+    # remotePort = 4210
+    # remoteIP = input("Enter IP: ")
 
     # create UDP socket
     udp = UDPstream.initUDP(port)
@@ -161,13 +177,20 @@ def main():
                 x = -x/90 # post processing
                 y = -y/90
                 print(x,y,lc,rc,aux1,aux2)
-
+                if keyboard.is_pressed("a"):
+                    recalibrateMouse(x, y)
+                if keyboard.is_pressed("q"):
+                    softQuit(udp)
                 # send to mouse control function
                 # change*
                 # doMouseControl(x,y,lc,rc)
                 # Divide by 90 for proper resolution
                 
+                # For recentering the mouse
+                x = x - xOffset
+                y = y - yOffset
                 doMouseControl(x,y,0,0)
+                
                 # pg.moveTo(100,100)
 
             else:

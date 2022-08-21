@@ -1,5 +1,6 @@
 #include "ArdUDP.h"
 
+
 void ArdPyUDP::init() {
   keyIndex = 0;             // your network key index number (needed only for WEP)
   status = WL_IDLE_STATUS;
@@ -43,40 +44,19 @@ void ArdPyUDP::UDPSetup() {
 
 }
 
-void ArdPyUDP::sendACK(WiFiUDP* Udp, unsigned int localUdpPort){
+void ArdPyUDP::sendACK() {
+  char replyBuffer[20];
+//  String ack = "ACK"; 
+//  strcpy(replyBuffer, ack.c_str());
+ memset(replyBuffer, 0x00, sizeof(replyBuffer));
+ sprintf(replyBuffer, "ACK");
 
- memset(ReplyBuffer, 0x00, sizeof(ReplyBuffer));
- sprintf(ReplyBuffer, "ACK");
-
- Udp->beginPacket(Udp->remoteIP(), Udp->remotePort());
- Udp->write((const uint8_t*)ReplyBuffer, 16);
- Udp->endPacket();
-
+ Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+ Udp.write((const uint8_t*)replyBuffer, 16);
+ Udp.endPacket();
+ Serial.println("Sent acknowledgement");
  
 }
-
-int ArdPyUDP::waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort){
- 
- bool readPacket = false;
- 
-  while(!readPacket){
-   Udp->begin(localUdpPort);
-   // we recv one packet from the remote so we can know its IP and port
-    while (!readPacket) {
-     
-      int packetSize = Udp->parsePacket();
-     
-      if (packetSize) {
-        int len = Udp->read(incomingPacket, 255);
-        if (len > 0) {
-          incomingPacket[len] = 0;
-        }
-        readPacket = true;
-      }  
-    } 
-  } 
-}
-
 
 
 void ArdPyUDP::receieveUDP() {
@@ -103,7 +83,16 @@ void ArdPyUDP::receieveUDP() {
    if (strcmp(packetBuffer, "BGN") == 0) {
     connectionMade = true;
     remoteIp = Udp.remoteIP();
+    Serial.println("Stream begun.");
+;   }
+   else if (strcmp(packetBuffer, "HS") == 0) {
+    sendACK();
    }
+   else if (strcmp(packetBuffer, "END") == 0) {
+    connectionMade = false; // Stop streaming data
+    Serial.println("Stream stopped.");
+   }
+
    
  }
 }
