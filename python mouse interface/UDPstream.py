@@ -62,6 +62,9 @@ def rxPacket(udp, len, timeout = 1):
     except socket.timeout:
         print('Timed out waiting for packet')
         ret = None
+    except Exception as e:
+        print("error: ", e)
+        ret=None
 
     udp.settimeout(oldTimeout)
 

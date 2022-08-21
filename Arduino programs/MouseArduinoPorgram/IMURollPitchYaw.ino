@@ -2,14 +2,31 @@
 #include "IMURollPitchYaw.h"
 #include <filters.h>
 
+
+const float cutoff_freq   = 2.0;  //Cutoff frequency in Hz (5)         maybe set this higher because the data isn't very noisy, might decrese the phase lag
+const float sampling_time = 0.005; //Sampling time in seconds.      not sure how this works but wouldn't it make sense to use 10ms?   from the update 100Hz rate
+IIR::ORDER  order  = IIR::ORDER::OD2; // Order (OD1 to OD4)         
+
+// Create low pass filter classes
+Filter lowPassPitch(cutoff_freq, sampling_time, order);
+Filter lowPassYaw(cutoff_freq, sampling_time, order);
+
+
 void RPY::init() {
-  cutoff_freq   = 5.0;  //Cutoff frequency in Hz          maybe set this higher because the data isn't very noisy, might decrese the phase lag
-  sampling_time = 0.005; //Sampling time in seconds.      not sure how this works but wouldn't it make sense to use 10ms?   from the update 100Hz rate  IIR::order  = IIR::ORDER::OD3; // Order (OD1 to OD4)
+  // Define filter specifications
+  float cutoff_freq = 5.0;  //Cutoff frequency in Hz          maybe set this higher because the data isn't very noisy, might decrese the phase lag
+  float sampling_time = 0.005; //Sampling time in seconds.      not sure how this works but wouldn't it make sense to use 10ms?   from the update 100Hz rate
   
-  Filter lowpass_filter1(cutoff_freq, sampling_time, order);
-  *lowPassPitch = lowpass_filter1;
-  Filter lowpass_filter2(cutoff_freq, sampling_time, order);
-  *lowPassYaw = lowpass_filter2;       
+  IIR::ORDER  order  = IIR::ORDER::OD3;
+
+  // Change*
+  lastTime = 0;
+  lastInterval = 0;
+//   Filter lowpass_filter1(cutoff_freq, sampling_time, order);
+//   *lowPassPitch = lowpass_filter1;
+//  *lowPassPitch = Filter(cutoff_freq, sampling_time, order);
+  // Filter lowpass_filter2(cutoff_freq, sampling_time, order);
+  // *lowPassYaw = lowpass_filter2;       
 
 }
 
@@ -67,6 +84,13 @@ bool RPY::readIMU() {
  if (IMU.accelerationAvailable() && IMU.gyroscopeAvailable() ) {
    IMU.readAcceleration(accelX, accelY, accelZ);
    IMU.readGyroscope(gyroX, gyroY, gyroZ);
+   // Change*
+//   Serial.print(accelX);
+//   Serial.print(',');
+//   Serial.print(accelY);
+//   Serial.print(',');
+//   Serial.print(accelZ);
+//   Serial.println("");
    return true;
  }
  return false;
@@ -96,7 +120,14 @@ void RPY::doCalculations() {
  accRoll = atan2(accelY, accelZ) * 180 / M_PI;
  accPitch = atan2(-accelX, sqrt(accelY * accelY + accelZ * accelZ)) * 180 / M_PI;
 
+ // Change*
+// Serial.print(accRoll);
+// Serial.print(',');
+// Serial.print(accPitch);
+// Serial.println("");
+
  float lastFrequency = (float) 1000000.0 / lastInterval;
+// float lastFrequency = (float) 9600.0 / lastInterval;
  gyroRoll = gyroRoll + (gyroX / lastFrequency);
  gyroPitch = gyroPitch + (gyroY / lastFrequency);
  gyroYaw = gyroYaw + (gyroZ / lastFrequency);
@@ -116,18 +147,20 @@ void RPY::doCalculations() {
 
 // CHANGE*
 void RPY::filterCalculations() {
- filterPitch = lowPassPitch->filterIn(complementaryPitch);
- filterYaw = lowPassYaw->filterIn(complementaryYaw);
+ filterPitch = lowPassPitch.filterIn(complementaryPitch);
+ filterYaw = lowPassYaw.filterIn(complementaryYaw);
 }
 
 float RPY::getPitch()
 {
   return filterPitch;
+//  return complementaryPitch;
 }
 
 float RPY::getYaw()
 {
   return filterYaw;
+//  return complementaryYaw;
 }
 
 /**

@@ -7,8 +7,8 @@
 
 
 // Network port setup
-#define SECRET_SSID "DevanSpot"
-#define SECRET_PASS "ojsb6982"
+#define SECRET_SSID ""
+#define SECRET_PASS ""
 
 struct UDPDataPacket {
   char data[256];
@@ -28,7 +28,7 @@ class ArdPyUDP {
     // Buffer data
     char packetBuffer[256]; //buffer to hold incoming packet
     char  ReplyBuffer[256] = "acknowledged";       // a string to send back
-
+    bool connectionMade;
     void printWifiStatus();
     void sendACK(WiFiUDP* Udp, unsigned int localUdpPort);
     int waitForPacket(WiFiUDP* Udp, char* incomingPacket, unsigned int localUdpPort);

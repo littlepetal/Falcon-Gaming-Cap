@@ -7,6 +7,8 @@
 #include <filters.h>
 
 
+
+
 class RPY {
 
   public:
@@ -32,13 +34,9 @@ class RPY {
     // Filter values
     float filterPitch, filterYaw;
 
-    // Define filter specifications
-    float cutoff_freq;  //Cutoff frequency in Hz          maybe set this higher because the data isn't very noisy, might decrese the phase lag
-    float sampling_time; //Sampling time in seconds.      not sure how this works but wouldn't it make sense to use 10ms?   from the update 100Hz rate
-    IIR::ORDER  order; // Order (OD1 to OD4)
 
-    Filter* lowPassPitch; 
-    Filter* lowPassYaw;        
+//    Filter* lowPassPitch; 
+//    Filter* lowPassYaw;        
 
     void calibrateIMU(int delayMillis, int calibrationMillis);
     bool readIMU();

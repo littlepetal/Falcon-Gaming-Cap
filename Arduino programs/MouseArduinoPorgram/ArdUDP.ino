@@ -4,6 +4,7 @@ void ArdPyUDP::init() {
   keyIndex = 0;             // your network key index number (needed only for WEP)
   status = WL_IDLE_STATUS;
   localPort = 4210;      // local port to listen on
+  connectionMade = false;
 }
 
 
@@ -44,7 +45,6 @@ void ArdPyUDP::UDPSetup() {
 //  waitForPacket(&Udp, &packetBuffer[0], localPort);
 //  sendACK(&Udp, localPort); 
 
-  remoteIp = Udp.remoteIP();
 }
 
 void ArdPyUDP::sendACK(WiFiUDP* Udp, unsigned int localUdpPort){
@@ -103,13 +103,23 @@ void ArdPyUDP::receieveUDP() {
    }
    Serial.println("Contents:");
    Serial.println(packetBuffer);
+
+   if (strcmp(packetBuffer, "BGN") == 0) {
+    connectionMade = true;
+    remoteIp = Udp.remoteIP();
+   }
+   
  }
 }
 
 void ArdPyUDP::writeUDP(UDPDataPacket packet) {
-  Udp.beginPacket(remoteIp, Udp.remotePort());
-  Udp.write(packet.data, sizeof(packet.data));
-  Udp.endPacket();
+
+  if (connectionMade) {
+    Udp.beginPacket(remoteIp, Udp.remotePort());
+    Udp.write(packet.data, sizeof(packet.data));
+    Udp.endPacket();
+  }
+  
 }
 
 

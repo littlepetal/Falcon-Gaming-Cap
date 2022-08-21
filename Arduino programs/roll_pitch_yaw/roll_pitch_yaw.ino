@@ -109,6 +109,7 @@ void loop() {
   if (readIMU()) {
     long currentTime = micros();
     lastInterval = currentTime - lastTime; // expecting this to be ~104Hz +- 4%
+//    Serial.println(lastInterval);
     lastTime = currentTime;
 
     doCalculations();
@@ -150,6 +151,7 @@ void doCalculations() {
 // CHANGE*
 void filterCalculations() {
   filterPitch = lowpass_filter.filterIn(complementaryPitch);
+//  filterYaw = lowpass_filter.filterIn(complementaryYaw);
   
 }
 
@@ -177,10 +179,13 @@ void printCalculations() {
 //  Serial.print(',');
 //  Serial.print(complementaryRoll);
 //  Serial.print(',');
+//  Serial.print(complementaryPitch);
+//  Serial.print(',');
+  // Change*
   Serial.print(complementaryPitch);
   Serial.print(',');
-  // Change*
-  Serial.print(filterPitch);
-//  Serial.print(complementaryYaw);
+  Serial.print(complementaryYaw);
+//  Serial.print(',');
+//  Serial.print(filterYaw);
   Serial.println("");
 }
