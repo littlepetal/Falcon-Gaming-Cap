@@ -41,10 +41,6 @@ void ArdPyUDP::UDPSetup() {
   // if you get a connection, report back via serial:
   Udp.begin(localPort);
 
-  // Do we need this?
-//  waitForPacket(&Udp, &packetBuffer[0], localPort);
-//  sendACK(&Udp, localPort); 
-
 }
 
 void ArdPyUDP::sendACK(WiFiUDP* Udp, unsigned int localUdpPort){
@@ -112,11 +108,21 @@ void ArdPyUDP::receieveUDP() {
  }
 }
 
-void ArdPyUDP::writeUDP(UDPDataPacket packet) {
+void ArdPyUDP::writeUDP(stringDataPacket packet) {
 
   if (connectionMade) {
     Udp.beginPacket(remoteIp, Udp.remotePort());
     Udp.write(packet.data, sizeof(packet.data));
+    Udp.endPacket();
+  }
+  
+}
+
+void ArdPyUDP::writeUDP32(UDP_data_packet packet) {
+
+  if (connectionMade) {
+    Udp.beginPacket(remoteIp, Udp.remotePort());
+    Udp.write((const uint8_t*)&packet, 4);
     Udp.endPacket();
   }
   

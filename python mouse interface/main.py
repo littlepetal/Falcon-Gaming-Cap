@@ -19,13 +19,18 @@ import time
 # the port to use
 port = 4210
 # the resolution of your monitor(s) (if using multiple, simply add the x resolution together)
-screenSize = 3440,1440
+# screenSize = 3440,1440
+screenSize = 1920,1080
 # relative or absolute mouse control modes ('abs'/'rel')
-mode = 'rel'
+#change*
+# mode = 'rel'
+mode = 'abs'
 
 # range of data from ardiuno
-xRange = -1820,1820
-yRange = -1820,1820
+xRange = -30, 30
+yRange = -30,30
+# xRange = -1820,1820
+# yRange = -1820,1820
 
 # size of the compressed packets in bytes
 packetSize = 4;
@@ -95,7 +100,9 @@ def doMouseControl(x,y,lc,rc):
 
     # relative mode
     elif mode == 'rel':
-        pg.moveRel((x)/100,(y)/100)
+        # change*
+        # pg.moveRel((x)/100,(y)/100)
+        pg.moveRel((x)/10,(y)/10)
 
     # mouse click handlers
     if(lc and not leftClicked):
@@ -130,7 +137,10 @@ def main():
     global remoteIP, remotePort, udp
 
     # use the network scan tool to find the arduino's IP address
-    remoteIP,remotePort = findArduino(port)
+    # change*
+    # remoteIP,remotePort = findArduino(port)
+    remotePort = 4210
+    remoteIP = input("Enter IP: ")
 
     # create UDP socket
     udp = UDPstream.initUDP(port)
@@ -148,10 +158,17 @@ def main():
 
                 # decode the data packet
                 x,y,lc,rc,aux1,aux2 = UDPstream.decodeBits(data)
+                x = -x/90 # post processing
+                y = -y/90
                 print(x,y,lc,rc,aux1,aux2)
 
                 # send to mouse control function
-                doMouseControl(x,y,lc,rc)
+                # change*
+                # doMouseControl(x,y,lc,rc)
+                # Divide by 90 for proper resolution
+                
+                doMouseControl(x,y,0,0)
+                # pg.moveTo(100,100)
 
             else:
                 droppedPackets += 1

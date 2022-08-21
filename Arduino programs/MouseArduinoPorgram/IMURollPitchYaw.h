@@ -7,8 +7,6 @@
 #include <filters.h>
 
 
-
-
 class RPY {
 
   public:
@@ -28,22 +26,17 @@ class RPY {
       gyroCorrectedRoll, gyroCorrectedPitch, gyroCorrectedYaw,  // units degrees (expect minor drift)
       accRoll,           accPitch,           accYaw,            // units degrees (roll and pitch noisy, yaw not possible)
       complementaryRoll, complementaryPitch, complementaryYaw;  // units degrees (excellent roll, pitch, yaw minor drift)
+    
     long lastTime;
     long lastInterval;
     
     // Filter values
     float filterPitch, filterYaw;
 
-
-//    Filter* lowPassPitch; 
-//    Filter* lowPassYaw;        
-
     void calibrateIMU(int delayMillis, int calibrationMillis);
     bool readIMU();
     void doCalculations();
     void filterCalculations();
     void printCalculations();
-
-
 
 };

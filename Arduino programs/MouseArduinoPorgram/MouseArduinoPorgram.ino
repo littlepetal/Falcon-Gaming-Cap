@@ -4,11 +4,15 @@
 #include "IMURollPitchYaw.h"
 
 ArdPyUDP udpComm;
-UDPDataPacket myPacket;
+stringDataPacket myPacket;
 RPY pitchYawData;
 
 int testFlag;
 
+
+
+UDP_data_packet packet = {0,0,0,0,0,0};
+int data[4] = {0,0,0,0}; // pitch, yaw, left click, right click
 
 void setup() {
     Serial.begin(9600);
@@ -16,8 +20,8 @@ void setup() {
       ; // wait for serial port to connect. Needed for native USB port only
     }
 
-//    udpComm.init();
-//    udpComm.UDPSetup();
+   udpComm.init();
+   udpComm.UDPSetup();
 
   
 
@@ -37,19 +41,17 @@ void loop() {
     pitchYawData.updatePitchYaw();
     float pitch = pitchYawData.getPitch();
     float yaw = pitchYawData.getYaw();
-//    Serial.print(pitch);
-//    Serial.print(',');
-//    Serial.print(yaw);
-//    Serial.println("");
-//    
-//    String s = "Hallo";
-//    strcpy(myPacket.data, s.c_str());
-//
-//    if (testFlag == 0) {
-//      testFlag = 1;
-//      Serial.println("UDP setup!");
-//    }
-//    udpComm.receieveUDP();
-//    udpComm.writeUDP(myPacket);
-//    delay(100); // remove delay later?
+
+    data[0] = (int) (yaw * 90); // x data
+    data[1] = (int) (pitch * 90); // y data
+
+    packet = {data[0], data[1], 0, 0, 0, 0};
+
+   if (testFlag == 0) {
+     testFlag = 1;
+     Serial.println("UDP setup!");
+   }
+   udpComm.receieveUDP();
+   udpComm.writeUDP32(packet);
+
 }

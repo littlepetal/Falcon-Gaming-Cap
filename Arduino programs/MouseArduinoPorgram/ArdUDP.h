@@ -10,16 +10,28 @@
 #define SECRET_SSID ""
 #define SECRET_PASS ""
 
-struct UDPDataPacket {
+struct stringDataPacket {
   char data[256];
 };
+
+// UDP data packet format (32bit total)
+struct UDP_data_packet{
+   uint32_t X : 14;
+   uint32_t Y : 14;
+   uint32_t LC : 1;
+   uint32_t RC : 1;
+   uint32_t aux_1 : 1;
+   uint32_t aux_2 : 1;
+};
+
 
 class ArdPyUDP {
   public:
     void init();
     void UDPSetup();
     void receieveUDP();
-    void writeUDP(UDPDataPacket data);
+    void writeUDP(stringDataPacket packet);
+    void writeUDP32(UDP_data_packet packet);
   private:
     int keyIndex;             // your network key index number (needed only for WEP)
     int status = WL_IDLE_STATUS;
