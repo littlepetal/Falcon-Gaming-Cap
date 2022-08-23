@@ -44,10 +44,9 @@ void ArdPyUDP::UDPSetup() {
 
 }
 
+// Send ACK packet back (to help with locating board with network finder)
 void ArdPyUDP::sendACK() {
   char replyBuffer[20];
-//  String ack = "ACK"; 
-//  strcpy(replyBuffer, ack.c_str());
  memset(replyBuffer, 0x00, sizeof(replyBuffer));
  sprintf(replyBuffer, "ACK");
 
@@ -59,6 +58,7 @@ void ArdPyUDP::sendACK() {
 }
 
 
+// Recieve any incoming udp packet and print the contents into serial
 void ArdPyUDP::receieveUDP() {
 
  // if there's data available, read a packet
@@ -97,6 +97,8 @@ void ArdPyUDP::receieveUDP() {
  }
 }
 
+
+// To send a string packet
 void ArdPyUDP::writeUDP(stringDataPacket packet) {
 
   if (connectionMade) {
@@ -107,6 +109,7 @@ void ArdPyUDP::writeUDP(stringDataPacket packet) {
   
 }
 
+// Function to write 32 bit packets of data to python program
 void ArdPyUDP::writeUDP32(UDP_data_packet packet) {
 
   if (connectionMade) {

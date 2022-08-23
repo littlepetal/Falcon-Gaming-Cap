@@ -7,8 +7,8 @@
 
 
 // Network port setup
-#define SECRET_SSID ""
-#define SECRET_PASS ""
+#define SECRET_SSID "AndroidAP"
+#define SECRET_PASS "fxbi0729"
 
 struct stringDataPacket {
   char data[256];

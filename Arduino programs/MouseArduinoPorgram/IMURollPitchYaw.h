@@ -38,5 +38,6 @@ class RPY {
     void doCalculations();
     void filterCalculations();
     void printCalculations();
+    void zeroValues();
 
 };

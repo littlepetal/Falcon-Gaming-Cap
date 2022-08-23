@@ -16,6 +16,8 @@ import keyboard
 
 # arduino side: LED status indicator
 
+# AHHHHH!?
+pg.FAILSAFE = False
 
 # the port to use
 port = 4210
@@ -182,14 +184,13 @@ def main():
                 if keyboard.is_pressed("q"):
                     softQuit(udp)
                 # send to mouse control function
-                # change*
                 # doMouseControl(x,y,lc,rc)
                 # Divide by 90 for proper resolution
                 
                 # For recentering the mouse
                 x = x - xOffset
                 y = y - yOffset
-                doMouseControl(x,y,0,0)
+                doMouseControl(x,y,lc,0)
                 
                 # pg.moveTo(100,100)
 

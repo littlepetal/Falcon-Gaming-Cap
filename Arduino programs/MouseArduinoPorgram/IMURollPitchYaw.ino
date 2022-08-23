@@ -15,6 +15,10 @@ Filter lowPassYaw(cutoff_freq, sampling_time, order);
 
 void RPY::IMUsetup() {
 
+  zeroValues();
+  
+ lowPassPitch.flush();
+ lowPassYaw.flush();
  if (!IMU.begin()) {
    Serial.println("Failed to initialize IMU!");
    while (1);
@@ -23,7 +27,26 @@ void RPY::IMUsetup() {
  calibrateIMU(250, 250);
 
  lastTime = micros();
+ 
 
+}
+
+
+void RPY::zeroValues() {
+
+  lastInterval = 0;
+  
+  gyroRoll = 0;
+  gyroPitch = 0;
+  gyroYaw = 0;
+
+  gyroCorrectedRoll = 0;
+  gyroCorrectedPitch = 0;
+  gyroCorrectedYaw = 0;
+
+  complementaryRoll = 0;
+  complementaryPitch = 0;
+  complementaryYaw = 0;
 }
 
 /*
@@ -73,6 +96,7 @@ bool RPY::readIMU() {
  return false;
 }
 
+// update the values of roll pitch and yaw
 void RPY::updatePitchYaw()
 {
   if (readIMU()) {
@@ -93,6 +117,7 @@ void RPY::updatePitchYaw()
   but as of 1.0.0 this was missing.
 */
 void RPY::doCalculations() {
+  // simple trig from ratio of acceleration
  accRoll = atan2(accelY, accelZ) * 180 / M_PI;
  accPitch = atan2(-accelX, sqrt(accelY * accelY + accelZ * accelZ)) * 180 / M_PI;
 
@@ -116,20 +141,24 @@ void RPY::doCalculations() {
 }
 
 
-// CHANGE*
+// Low pass filter on the pitch and yaw data
 void RPY::filterCalculations() {
  filterPitch = lowPassPitch.filterIn(complementaryPitch);
  filterYaw = lowPassYaw.filterIn(complementaryYaw);
 }
 
+
+// Return pitch yaw data
 float RPY::getPitch()
 {
   return filterPitch;
+//  return gyroCorrectedPitch;
 }
 
 float RPY::getYaw()
 {
   return filterYaw;
+//  return gyroZ;
 }
 
 /**
