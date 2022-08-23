@@ -183,6 +183,8 @@ def main():
                     recalibrateMouse(x, y)
                 if keyboard.is_pressed("q"):
                     softQuit(udp)
+                if keyboard.is_pressed("k"):
+                    UDPstream.txString("DRI", udp, remoteIP, remotePort)
                 # send to mouse control function
                 # doMouseControl(x,y,lc,rc)
                 # Divide by 90 for proper resolution
@@ -190,9 +192,9 @@ def main():
                 # For recentering the mouse
                 x = x - xOffset
                 y = y - yOffset
+
                 doMouseControl(x,y,lc,0)
                 
-                # pg.moveTo(100,100)
 
             else:
                 droppedPackets += 1

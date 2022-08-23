@@ -59,7 +59,9 @@ void RPY::calibrateIMU(int delayMillis, int calibrationMillis) {
 
  delay(delayMillis); // to avoid shakes after pressing reset button
 
- float sumX, sumY, sumZ;
+ float sumX =0;
+ float sumY = 0; 
+ float sumZ = 0;
  int startTime = millis();
  while (millis() < startTime + calibrationMillis) {
    if (readIMU()) {

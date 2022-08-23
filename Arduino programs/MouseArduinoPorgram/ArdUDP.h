@@ -7,8 +7,8 @@
 
 
 // Network port setup
-#define SECRET_SSID "AndroidAP"
-#define SECRET_PASS "fxbi0729"
+#define SECRET_SSID "Shah_Networks"
+#define SECRET_PASS "ShahFamily1358"
 
 struct stringDataPacket {
   char data[256];
@@ -29,7 +29,7 @@ class ArdPyUDP {
   public:
     void init();
     void UDPSetup();
-    void receieveUDP();
+    char receieveUDP();
     void writeUDP(stringDataPacket packet);
     void writeUDP32(UDP_data_packet packet);
   private:

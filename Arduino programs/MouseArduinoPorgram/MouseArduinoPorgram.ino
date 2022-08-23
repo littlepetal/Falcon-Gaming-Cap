@@ -32,6 +32,9 @@ void setup() {
       }
       break;
     }
+
+    // set up IMU
+    pitchYawData.IMUsetup();
     digitalWrite(LED_BUILTIN, HIGH);
     delay(1000);
     digitalWrite(LED_BUILTIN, LOW);
@@ -44,10 +47,12 @@ void setup() {
    udpComm.init();
    udpComm.UDPSetup();
 
-    pitchYawData.IMUsetup();
+    
 
     // A flag to check if UDP and IMU has properly setup
     testFlag = 0;
+    // Setup complete blink
+    
 }
 
 void loop() {
@@ -78,7 +83,13 @@ void loop() {
      Serial.println("UDP and IMU setup!");
      digitalWrite(LED_BUILTIN, HIGH);
    }
-   udpComm.receieveUDP();
+   char checkFlag = udpComm.receieveUDP();
+   if (checkFlag == 'n') {
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(1000);
+    pitchYawData.IMUsetup();
+    digitalWrite(LED_BUILTIN, HIGH);
+   }
    udpComm.writeUDP32(packet);
 
 }

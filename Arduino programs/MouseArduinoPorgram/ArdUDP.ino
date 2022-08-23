@@ -59,8 +59,9 @@ void ArdPyUDP::sendACK() {
 
 
 // Recieve any incoming udp packet and print the contents into serial
-void ArdPyUDP::receieveUDP() {
+char ArdPyUDP::receieveUDP() {
 
+  char exitFlag = 'y';
  // if there's data available, read a packet
  int packetSize = Udp.parsePacket();
  if (packetSize) {
@@ -92,6 +93,12 @@ void ArdPyUDP::receieveUDP() {
     connectionMade = false; // Stop streaming data
     Serial.println("Stream stopped.");
    }
+   else if (strcmp(packetBuffer, "DRI") == 0) 
+   {
+      exitFlag = 'n';
+      Serial.println("Client ask for recalibration");
+   }
+   return exitFlag;
 
    
  }
