@@ -5,6 +5,7 @@ A precise and responsive hands-free gaming experience.
 ## Usage
 
 
+
 ## Installation
 
 ### 1. Install dependencies
@@ -26,8 +27,13 @@ Under  Tools > Port  select the com port that the tracker is connected to.
 
 Click upload and wait until complete.
 
-### 3.
-Switch the head tracker on and place it on your head.
+### 3. Configuration
+Open the main.py script in a text editor and set your monitor resolution [width, height].<br />
+
+At this point you can customize any other configuration setting you want, but if it's your first time using the head tracker we recommend using the defaults.
+
+### 4. Test
+Switch the head tracker on. Once the LED stops blinking you may place it on your head.
 
 Navigate to the directory containing the downloaded .py files and run the main.py script
 ```bash
@@ -35,10 +41,7 @@ py main.py
 ```
 
 The script will search your local network for the head tracker. Once located, it will connect and assume control of your cursor.<br />
-To close the program press 'q' or 'esc' on your keyboard. You can also terminate the script from the command line with 'ctrl+c'
-
-
-
+To close the program press 'q' or 'esc' on your keyboard. You can also terminate the script from the command line with 'ctrl+c'<br />
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
