@@ -41,6 +41,7 @@ py main.py
 ```
 
 The script will search your local network for the head tracker. Once located, it will connect and assume control of your cursor.<br />
+
 To close the program press 'q' or 'esc' on your keyboard. You can also terminate the script from the command line with 'ctrl+c'<br />
 
 ## License
