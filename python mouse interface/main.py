@@ -1,7 +1,6 @@
 import pyautogui as pg
 import network_scan_tool
 import UDPstream
-import threading
 import time
 import keyboard
 from playsound import playsound
