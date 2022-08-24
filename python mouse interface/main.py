@@ -4,36 +4,23 @@ import UDPstream
 import threading
 import time
 import keyboard
-#import gui
-#import math
+from playsound import playsound
 
-
-# TODO
-# need auto calibration <- should be easy
-# initial handshake <- needs to be more robust
-# stream start/stop <- need to add udp rx and command parser on arduino side
-# update rate and packet loss detection (1.5x packet time before declared lost?, implement via timeout?)
-
-# arduino side: LED status indicator
-
-# AHHHHH!?
-pg.FAILSAFE = False
 
 # the port to use
 port = 4210
+
 # the resolution of your monitor(s) (if using multiple, simply add the x resolution together)
-# screenSize = 3440,1440
 screenSize = 1920,1080
+
 # relative or absolute mouse control modes ('abs'/'rel')
-#change*
-# mode = 'rel'
 mode = 'abs'
 
 # range of data from ardiuno
 xRange = -30, 30
 yRange = -30,30
-# xRange = -1820,1820
-# yRange = -1820,1820
+xOffset = 0
+yOffset = 0
 
 # size of the compressed packets in bytes
 packetSize = 4;
@@ -42,14 +29,13 @@ packetSize = 4;
 pg.MINIMUM_DURATION = 0
 pg.MINIMUM_SLEEP = 0
 pg.PAUSE = 0
+# This is risky AF, good luck
+pg.FAILSAFE = False
 
 # mouse button pressed flags (allows for click and drag)
 leftClicked = False
 rightClicked = False
 
-
-xOffset = 0
-yOffset = 0
 
 # safely kills the UDP stream and closes the program
 def softQuit(udp = None):
@@ -63,10 +49,11 @@ def softQuit(udp = None):
 
     print("Closing...")
 
-    #gui.close_app()
-    #app[0].quit()
     quit()
 
+
+def playAudio():
+    playsound('clipped.mp3')
 
 # find the ip of the arduino using network scan tool
 def findArduino(port):
@@ -96,7 +83,7 @@ def recalibrateMouse(x, y):
     xOffset = x
     yOffset = y
     pg.moveTo(screenSize[0]/2, screenSize[1]/2)
-    
+
 
 # moves the mouse (absolute coords)
 def moveMouse(x,y):
@@ -116,8 +103,6 @@ def doMouseControl(x,y,lc,rc):
 
     # relative mode
     elif mode == 'rel':
-        # change*
-        # pg.moveRel((x)/100,(y)/100)
         pg.moveRel((x)/10,(y)/10)
 
     # mouse click handlers
@@ -143,62 +128,59 @@ def doMouseControl(x,y,lc,rc):
 
 def main():
 
-    #global app
-    #app = [None]
-    #ui_th = threading.Thread(target=gui.uiThread, args=(app,))
-    #ui_th.start()
-
-    droppedPackets = 0
-
     global remoteIP, remotePort, udp
 
     # use the network scan tool to find the arduino's IP address
-    # change*
     remoteIP,remotePort = findArduino(port)
-    # print(remoteIP)
-    # exit()
-    # remotePort = 4210
-    # remoteIP = input("Enter IP: ")
 
     # create UDP socket
     udp = UDPstream.initUDP(port)
 
+    # tell the arduino to start the stream
     UDPstream.startStream(udp, remoteIP, remotePort)
 
-    # infinite loop, ctrl+c to quit
+    # Inhuman reactions
+    playAudio()
+
+    # infinite loop
     try:
         while True:
+
             # wait for data
             recvData = UDPstream.rxPacket(udp, packetSize, 0.02)
+
             # check if recieved and handle timeout error
             if recvData != None:
+
                 data,addr = recvData
 
                 # decode the data packet
                 x,y,lc,rc,aux1,aux2 = UDPstream.decodeBits(data)
+
                 x = -x/90 # post processing
                 y = -y/90
+
                 print(x,y,lc,rc,aux1,aux2)
+
+                # a = centre the mouse
                 if keyboard.is_pressed("a"):
                     recalibrateMouse(x, y)
+                # q = quit
                 if keyboard.is_pressed("q"):
                     softQuit(udp)
+                # k = recalibrate arduino IMU
                 if keyboard.is_pressed("k"):
                     UDPstream.txString("DRI", udp, remoteIP, remotePort)
-                # send to mouse control function
-                # doMouseControl(x,y,lc,rc)
-                # Divide by 90 for proper resolution
-                
+
                 # For recentering the mouse
                 x = x - xOffset
                 y = y - yOffset
 
+                # mouse control function
                 doMouseControl(x,y,lc,0)
-                
 
             else:
-                droppedPackets += 1
-
+                pass
 
     except KeyboardInterrupt:
         softQuit(udp)
@@ -206,6 +188,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
 softQuit(udp)

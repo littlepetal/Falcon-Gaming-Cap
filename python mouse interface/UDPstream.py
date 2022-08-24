@@ -36,10 +36,6 @@ def decodeBits(bits):
     x = ( ( x1 << 8 ) | ( x2 ) ) #| 0b0000000000000000
     x = twosComp(x)
 
-    # if using arduino IMU data /90
-    # y /= 90
-    # x /= 90
-
     decoded = (x,y,l,r,aux1,aux2)
     return decoded
 
