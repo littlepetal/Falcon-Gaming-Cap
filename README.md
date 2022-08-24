@@ -11,11 +11,15 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install depende
 pip install pyautogui playsound
 ```
 
+Arduino setup?
+
+## Configuration
+
+Setting network settings, monitor res, sensitivity, etc
+
 ## Usage
 
-```bash
-py main.py
-```
+Enumerated step-by-step guide
 
 
 ## License
