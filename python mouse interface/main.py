@@ -138,12 +138,10 @@ def main():
     # tell the arduino to start the stream
     UDPstream.startStream(udp, remoteIP, remotePort)
 
-    # Inhuman reactions
-    playAudio()
-
     # infinite loop
     try:
         while True:
+            time0 = time.perf_counter()
 
             # wait for data
             recvData = UDPstream.rxPacket(udp, packetSize, 0.02)
@@ -159,7 +157,7 @@ def main():
                 x = -x/90 # post processing
                 y = -y/90
 
-                print(x,y,lc,rc,aux1,aux2)
+                #print(x,y,lc,rc,aux1,aux2)
 
                 # a = centre the mouse
                 if keyboard.is_pressed("a"):
@@ -178,8 +176,14 @@ def main():
                 # mouse control function
                 doMouseControl(x,y,lc,0)
 
+                time1 = time.perf_counter()
+
+                print(time1-time0)
+
             else:
                 pass
+
+
 
     except KeyboardInterrupt:
         softQuit(udp)
